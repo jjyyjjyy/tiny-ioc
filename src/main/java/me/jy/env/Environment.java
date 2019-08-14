@@ -1,4 +1,4 @@
-package me.jy.core;
+package me.jy.env;
 
 /**
  * @author jy

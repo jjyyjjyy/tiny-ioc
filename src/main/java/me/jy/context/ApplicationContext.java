@@ -1,4 +1,7 @@
-package me.jy.core;
+package me.jy.context;
+
+import me.jy.bean.BeanDefinition;
+import me.jy.env.Environment;
 
 import java.time.LocalDateTime;
 import java.util.Collection;
@@ -19,6 +22,12 @@ public interface ApplicationContext {
     void register(BeanDefinition beanDefinition);
 
     void scan(String... packages);
+
+    <T> T getBean(Class<T> beanType);
+
+    Object getBean(String beanName);
+
+    <T> T getBean(String beanName, Class<T> beanType);
 
     Collection<BeanDefinition> getBeanDefinitions();
 
