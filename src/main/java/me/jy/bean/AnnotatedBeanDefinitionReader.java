@@ -1,5 +1,6 @@
 package me.jy.bean;
 
+import me.jy.annotation.Configuration;
 import me.jy.annotation.Prototype;
 
 import javax.inject.Named;
@@ -15,14 +16,18 @@ public class AnnotatedBeanDefinitionReader {
         Annotation[] annotations = beanClass.getAnnotations();
         beanDefinition.setAnnotations(annotations);
         if (annotations != null && annotations.length > 0) {
+            // 处理类上的注解
             for (Annotation annotation : annotations) {
-                if (annotation.getClass().equals(Prototype.class)) {
+                Class<? extends Annotation> annotationType = annotation.annotationType();
+                if (annotationType.equals(Prototype.class)) {
                     beanDefinition.setScopeType(ScopeType.SCOPE_PROTOTYPE);
-                } else if (annotation.getClass().equals(Named.class)) {
+                } else if (annotationType.equals(Named.class)) {
                     Named named = beanClass.getAnnotation(Named.class);
                     if (named.value().length() > 0) {
                         beanDefinition.setBeanName(named.value());
                     }
+                } else if (annotationType.equals(Configuration.class)) {
+                    beanDefinition.setConfigurationClass(true);
                 }
             }
         }

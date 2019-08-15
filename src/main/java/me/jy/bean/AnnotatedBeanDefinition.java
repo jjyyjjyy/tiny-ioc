@@ -18,9 +18,11 @@ public class AnnotatedBeanDefinition implements BeanDefinition {
 
     private Object bean;
 
-    private Boolean lazy = false;
+    private boolean configurationClass;
 
-    private Boolean primary = true;
+    private boolean lazy = false;
+
+    private boolean primary = true;
 
     private ScopeType scopeType = ScopeType.SCOPE_SINGLETON;
 

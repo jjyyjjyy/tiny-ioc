@@ -2,9 +2,7 @@ package me.jy.context;
 
 import lombok.Data;
 import lombok.NonNull;
-import me.jy.bean.AnnotatedBeanDefinitionReader;
-import me.jy.bean.BeanDefinition;
-import me.jy.bean.BeanInitializer;
+import me.jy.bean.*;
 import me.jy.env.Environment;
 
 import java.time.LocalDateTime;
@@ -22,6 +20,8 @@ public class AnnotationConfigApplicationContext implements ApplicationContext {
 
     private static final Map<String, BeanDefinition> BEAN_DEFINITION_MAP = new ConcurrentHashMap<>(1 << 6);
     private static final BeanInitializer BEAN_INITIALIZER = new BeanInitializer();
+    private static final BeanDefinitionRegistryPostProcessor CONFIGURATION_CLASS_POST_PROCESSOR = new ConfigurationClassPostProcessor();
+    private ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
     private String id;
     private LocalDateTime startTime;
     private Environment environment;
@@ -35,10 +35,6 @@ public class AnnotationConfigApplicationContext implements ApplicationContext {
     @Override
     public LocalDateTime getStartTime() {
         return this.startTime;
-    }
-
-    public void register(BeanDefinition beanDefinition) {
-        BEAN_DEFINITION_MAP.put(beanDefinition.getBeanName(), beanDefinition);
     }
 
     @Override
@@ -62,6 +58,10 @@ public class AnnotationConfigApplicationContext implements ApplicationContext {
         return null;
     }
 
+    public void register(BeanDefinition beanDefinition) {
+        BEAN_DEFINITION_MAP.put(beanDefinition.getBeanName(), beanDefinition);
+    }
+
     @Override
     public boolean isActive() {
         return state == RUNNING;
@@ -76,6 +76,7 @@ public class AnnotationConfigApplicationContext implements ApplicationContext {
     public synchronized void refresh() {
         initStartTime();
         state = REFRESHING;
+        CONFIGURATION_CLASS_POST_PROCESSOR.processConfigBeanDefinitions(this);
         BEAN_DEFINITION_MAP.values().forEach(beanDefinition -> beanDefinition.setBean(BEAN_INITIALIZER.initBean(beanDefinition)));
         state = RUNNING;
     }
@@ -88,8 +89,6 @@ public class AnnotationConfigApplicationContext implements ApplicationContext {
 
     @Override
     public synchronized void start() {
-        initStartTime();
-        refresh();
     }
 
     @Override

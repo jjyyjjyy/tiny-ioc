@@ -13,5 +13,10 @@ public interface BeanDefinition {
 
     void setBean(Object object);
 
+    boolean isConfigurationClass();
+
+    boolean isPrimary();
+
+    boolean isLazy();
 
 }

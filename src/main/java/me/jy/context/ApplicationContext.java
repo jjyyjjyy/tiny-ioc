@@ -17,6 +17,8 @@ public interface ApplicationContext {
 
     LocalDateTime getStartTime();
 
+    ClassLoader getClassLoader();
+
 //    ApplicationContext getParent();
 
     void register(BeanDefinition beanDefinition);
