@@ -21,6 +21,8 @@ import java.util.stream.Stream;
  */
 public class ClassPathBeanDefinitionScanner {
 
+    private static final String CLASS_SUFFIX = ".class";
+
     /**
      * 获取需要扫描bean的包
      *
@@ -51,10 +53,19 @@ public class ClassPathBeanDefinitionScanner {
 
     @SneakyThrows
     public List<BeanDefinition> retrieveBeanDefinition(String packageName, ClassLoader classLoader) {
-        Enumeration<URL> resources = classLoader.getResources(packageName.replaceFirst("\\.", File.pathSeparator));
-        while (resources.hasMoreElements()) {
-            Files.list(Paths.get(resources.nextElement().getFile())).forEach(System.out::println);
-        }
-        return new ArrayList<>();
+        String name = packageName.replaceAll("\\.", File.separator);
+        Enumeration<URL> resources = classLoader.getResources(name);
+
+        return Files.list(Paths.get(resources.nextElement().getFile()))
+            .map(path -> {
+                String fileName = path.getFileName().toString();
+                String className = packageName + "." + fileName.substring(0, fileName.lastIndexOf(CLASS_SUFFIX)).replace(File.separator, ".");
+                try {
+                    return AnnotatedBeanDefinitionReader.readBeanDefinition(classLoader.loadClass(className));
+                } catch (ClassNotFoundException e) {
+                    throw new RuntimeException(e);
+                }
+            })
+            .collect(Collectors.toList());
     }
 }

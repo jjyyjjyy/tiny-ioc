@@ -59,7 +59,7 @@ public class AnnotationConfigApplicationContext implements ApplicationContext {
     }
 
     public void register(BeanDefinition beanDefinition) {
-        BEAN_DEFINITION_MAP.put(beanDefinition.getBeanName(), beanDefinition);
+        BEAN_DEFINITION_MAP.putIfAbsent(beanDefinition.getBeanName(), beanDefinition);
     }
 
     @Override
